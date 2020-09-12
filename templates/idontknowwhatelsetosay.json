@@ -2,10 +2,10 @@
     "kind": "Template",
     "apiVersion": "v1",
     "metadata": {
-        "name": "idontknowwhatelsetosay-wordpress-classic-repository",
+        "name": "idontknowwhatelsetosay-wordpress-classic",
 	"annotations": {
             "openshift.io/display-name": "idontknowwhatelsetosay.com (WordPress - Classic / Repository)",
-	    "description": "Creates a WordPress installation with separate MySQL database instance. Plugins, themes and language files are incorporated from a source code repository. Requires that two persistent volumes be available. If a ReadWriteMany persistent volume type is available and used, WordPress can be scaled to multiple replicas and the deployment strategy switched to Rolling to permit rolling deployments on restarts.",
+	    "description": "Creates a WordPress installation with separate MySQL database instance. Requires that two persistent volumes be available. If a ReadWriteMany persistent volume type is available and used, WordPress can be scaled to multiple replicas and the deployment strategy switched to Rolling to permit rolling deployments on restarts.",
 	    "tags": "quickstart,php,wordpress",
             "iconClass": "icon-php"
 	}
@@ -22,18 +22,6 @@
             "name": "QUICKSTART_REPOSITORY_URL",
             "description": "The URL of the quickstart Git repository.",
             "value": "https://github.com/openshift-evangelists/wordpress-quickstart",
-            "required": true
-        },
-        {
-            "name": "SOURCE_REPOSITORY_URL",
-            "description": "The source repository containing plugins, themes and language files.",
-            "value": "",
-            "required": true
-        },
-        {
-            "name": "SOURCE_REPOSITORY_TAG",
-            "description": "The tagged version of the source repository to use.",
-            "value": "master",
             "required": true
         },
         {
@@ -102,7 +90,7 @@
             "kind": "ImageStream",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${APPLICATION_NAME}-s2i",
+                "name": "${APPLICATION_NAME}-img",
                 "labels": {
                     "app": "${APPLICATION_NAME}"
                 }
@@ -112,7 +100,7 @@
             "kind": "BuildConfig",
             "apiVersion": "v1",
             "metadata": {
-                "name": "${APPLICATION_NAME}-s2i",
+                "name": "${APPLICATION_NAME}",
                 "labels": {
                     "app": "${APPLICATION_NAME}"
                 }
@@ -145,7 +133,7 @@
                 "output": {
                     "to": {
                         "kind": "ImageStreamTag",
-                        "name": "${APPLICATION_NAME}-s2i:latest"
+                        "name": "${APPLICATION_NAME}-img:latest"
                     },
                     "imageLabels": [
                         {
@@ -169,58 +157,6 @@
                             "value": "builder,php,wordpress"
                         }
                     ]
-                }
-            }
-        },
-        {
-            "kind": "ImageStream",
-            "apiVersion": "v1",
-            "metadata": {
-                "name": "${APPLICATION_NAME}-img",
-                "labels": {
-                    "app": "${APPLICATION_NAME}"
-                }
-            }
-        },
-        {
-            "kind": "BuildConfig",
-            "apiVersion": "v1",
-            "metadata": {
-                "name": "${APPLICATION_NAME}-img",
-                "labels": {
-                    "app": "${APPLICATION_NAME}"
-                }
-            },
-            "spec": {
-                "triggers": [
-                    {
-                        "type": "ConfigChange"
-                    },
-                    {
-                        "type": "ImageChange"
-                    }
-                ],
-                "source": {
-                    "type": "Git",
-                    "git": {
-                        "uri": "${SOURCE_REPOSITORY_URL}",
-                        "ref": "${SOURCE_REPOSITORY_TAG}"
-                    }
-                },
-                "strategy": {
-                    "type": "Source",
-                    "sourceStrategy": {
-                        "from": {
-                            "kind": "ImageStreamTag",
-                            "name": "${APPLICATION_NAME}-s2i:latest"
-                        }
-                    }
-                },
-                "output": {
-                    "to": {
-                        "kind": "ImageStreamTag",
-                        "name": "${APPLICATION_NAME}-img:latest"
-                    }
                 }
             }
         },
